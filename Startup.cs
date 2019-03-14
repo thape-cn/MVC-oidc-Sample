@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace ASPNET_MVC_oidc
 {
@@ -34,6 +36,28 @@ namespace ASPNET_MVC_oidc
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+            .AddCookie()
+            .AddOpenIdConnect(options =>
+            {
+                options.SignInScheme = "Cookies";
+                options.Authority = "https://oauth2id.dev/";
+                options.RequireHttpsMetadata = true;
+                options.ResponseType = OpenIdConnectResponseType.Code;
+                options.ClientId = "a79acc19c5ddd565007918d7e3a61cd490de86e5ec9179f445802285b4750999";
+                options.ClientSecret = "214e85448c1f3c276797ab49e3817804c9555a39b4cc025fa00a135206d8b19d";
+                options.CallbackPath = "/signin-oidc";
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true
+                };
+                options.SaveTokens = true;
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -53,27 +77,9 @@ namespace ASPNET_MVC_oidc
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookieAuthentication(new CookieAuthenticationOptions(){
-              AuthenticationScheme = "Cookies",
-              AutomaticAuthenticate = true
-            });            
+            app.UseCookiePolicy();
+            app.UseAuthentication();
 
-            app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions()
-            {
-              AuthenticationScheme = "oidc",
-              SignInScheme = "Cookies",
-              Authority = "https://{yourOktaDomain}",
-              ResponseType = OpenIdConnectResponseType.Code,
-              ClientId = "{clientId}",
-              ClientSecret = "{clientSecret}",
-              GetClaimsFromUserInfoEndpoint = true,
-              TokenValidationParameters = new TokenValidationParameters
-              {
-                ValidateIssuer = true
-              },
-              SaveTokens = true
-            });
-            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
