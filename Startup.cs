@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ASPNET_MVC_oidc
 {
@@ -50,8 +53,27 @@ namespace ASPNET_MVC_oidc
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseCookieAuthentication(new CookieAuthenticationOptions(){
+              AuthenticationScheme = "Cookies",
+              AutomaticAuthenticate = true
+            });            
 
+            app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions()
+            {
+              AuthenticationScheme = "oidc",
+              SignInScheme = "Cookies",
+              Authority = "https://{yourOktaDomain}",
+              ResponseType = OpenIdConnectResponseType.Code,
+              ClientId = "{clientId}",
+              ClientSecret = "{clientSecret}",
+              GetClaimsFromUserInfoEndpoint = true,
+              TokenValidationParameters = new TokenValidationParameters
+              {
+                ValidateIssuer = true
+              },
+              SaveTokens = true
+            });
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

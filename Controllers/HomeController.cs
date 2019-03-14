@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using ASPNET_MVC_oidc.Models;
 
 namespace ASPNET_MVC_oidc.Controllers
@@ -11,6 +12,12 @@ namespace ASPNET_MVC_oidc.Controllers
     public class HomeController : Controller
     {
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public IActionResult Secure()
         {
             return View();
         }
