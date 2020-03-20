@@ -45,7 +45,7 @@ namespace ASPNET_MVC_oidc
             .AddOpenIdConnect(options =>
             {
                 options.SignInScheme = "Cookies";
-                options.Authority = "https://oauth2id.dev/";
+                options.Authority = "https://sso-id.com/";
                 options.RequireHttpsMetadata = true;
                 options.ResponseType = OpenIdConnectResponseType.Code;
                 options.ClientId = "a79acc19c5ddd565007918d7e3a61cd490de86e5ec9179f445802285b4750999";
